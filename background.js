@@ -1,4 +1,4 @@
-importScripts("gemini.js");
+importScripts("gemini.js", "blocker.js", "rules.js");
 
 //===============================
 // TAB DETECTION
@@ -91,6 +91,14 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
 
   // Print Gemini's answer
   console.log("GEMINI:", decision);
+
+  // Decide whether the website
+  // should be blocked or allowed
+  if (shouldBlock(decision)) {
+    await blockPage(activeInfo.tabId, tab.url);
+  } else {
+    console.log("ALLOW WEBSITE");
+  }
 
   // Save Gemini's decision so popup.js can display it
   await chrome.storage.local.set({

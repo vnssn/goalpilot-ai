@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>GoalPilot Settings</title>
+
+    <link rel="stylesheet" href="options.css">
+  </head>
+
+  <body>
+    <header>
+      <h1>⚙️ GoalPilot Settings</h1>
+
+      <p class="muted">Configure AI, rules and preferences</p>
+    </header>
+
+    <!-- GEMINI SETTINGS -->
+
+    <section class="card">
+      <h2>1. Gemini API</h2>
+
+      <label for="apiKey"> Gemini API Key </label>
+
+      <input id="apiKey" type="text" placeholder="Paste your Gemini API key" />
+
+      <p class="muted">
+        Need a Gemini API key?
+
+        <a href="https://aistudio.google.com/apikey" target="_blank">
+          Get one here →
+        </a>
+      </p>
+
+      <button id="saveApi">Save API Key</button>
+    </section>
+
+    <!-- ALLOWED WEBSITES -->
+
+    <section class="card">
+      <h2>2. Always Allow</h2>
+
+      <p class="muted">
+        One website per line. GoalPilot will never ask Gemini.
+      </p>
+
+      <textarea
+        id="allowed"
+        placeholder="leetcode.com
+github.com
+youtube.com"
+      >
+      </textarea>
+    </section>
+
+    <!-- BLOCKED WEBSITES -->
+
+    <section class="card">
+      <h2>3. Always Block</h2>
+
+      <p class="muted">
+        One website per line. GoalPilot will block these instantly.
+      </p>
+
+      <textarea
+        id="blocked"
+        placeholder="instagram.com
+tiktok.com
+9anime.to"
+      >
+      </textarea>
+
+      <button id="saveRules">Save Rules</button>
+    </section>
+
+    <!-- FUTURE SETTINGS -->
+
+    <section class="card">
+      <h2>4. Future Features</h2>
+
+      <ul>
+        <li>Decision Cache</li>
+        <li>Statistics</li>
+        <li>Notifications</li>
+        <li>Export Session History</li>
+      </ul>
+    </section>
+
+    <script src="options.js"></script>
+  </body>
+</html>

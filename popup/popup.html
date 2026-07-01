@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GoalPilot</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <div class="header-row">
+        <div>
+          <h1>GoalPilot</h1>
+          <p class="muted">AI-powered focus assistant</p>
+        </div>
+
+        <button id="settings">⚙️</button>
+      </div>
+    </header>
+
+    <section class="card">
+      <h2>1. Start Focus Session</h2>
+      <label for="goal">Current goal</label>
+      <textarea
+        id="goal"
+        placeholder="Study Binary Search for 2 hours"
+      ></textarea>
+
+      <label for="duration">Session duration</label>
+      <select id="duration">
+        <option>25 minutes</option>
+        <option>1 hour</option>
+        <option>2 hours</option>
+      </select>
+
+      <div class="buttons">
+        <button id="start">Start</button>
+        <button id="stop">Pause</button>
+        <button id="reset">Reset</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2. Current Session</h2>
+      <div id="goal-container">
+        <span>Goal: </span>
+        <span id="current-goal"> No active session </span>
+      </div>
+      <div id="timer" class="timer">00:00:00</div>
+      <p id="status" class="status">Focus Mode Stopped</p>
+    </section>
+
+    <section class="card">
+      <h2>3. Current Page Analysis</h2>
+      <div class="analysis">
+        <div class="row"><small>Website</small><span id="website">-</span></div>
+        <div class="row"><small>Content</small><span id="content">-</span></div>
+        <div class="row">
+          <small>AI Decision</small
+          ><span id="decision" class="decision"> Waiting... </span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>4. Focus Statistics</h2>
+      <div class="stats">
+        <div class="stat"><strong>2h</strong><small>Focus time</small></div>
+        <div class="stat"><strong>24</strong><small>Blocked</small></div>
+        <div class="stat"><strong>87%</strong><small>Score</small></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>5. Simple Rules</h2>
+      <small>Always Block</small>
+      <ul>
+        <li>Instagram Reels</li>
+        <li>YouTube Shorts</li>
+        <li>TikTok</li>
+      </ul>
+      <br />
+      <small>Always Allow</small>
+      <ul>
+        <li>Documentation</li>
+        <li>LeetCode</li>
+        <li>GeeksforGeeks</li>
+      </ul>
+      <p class="muted">Use Gemini for everything else.</p>
+    </section>
+    <script src="popup.js"></script>
+  </body>
+</html>
