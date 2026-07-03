@@ -46,6 +46,7 @@ function updateTimer() {
       "active",
       "startTime",
       "elapsedTime",
+      "duration",
     ]);
 
     // Don't update if session inactive
@@ -56,6 +57,29 @@ function updateTimer() {
 
     // convert to seconds
     const seconds = Math.floor(elapsed / 1000);
+    // Session duration in seconds
+    const limit = parseInt(data.duration || 0) * 60;
+
+    // Stop session when timer ends
+    if (limit > 0 && seconds >= limit) {
+      await chrome.storage.local.set({
+        active: false,
+        elapsedTime: limit * 1000,
+        focusTime: Math.floor(limit / 60),
+      });
+
+      updateSessionButtons(false);
+      updateSessionInputs(false);
+      updateStatus(false);
+
+      document.getElementById("timer").innerText = new Date(limit * 1000)
+        .toISOString()
+        .substring(11, 19);
+
+      alert("Focus session completed!");
+
+      return;
+    }
 
     const hrs = String(Math.floor(seconds / 3600)).padStart(2, "0");
 
@@ -69,6 +93,8 @@ function updateTimer() {
 
 // Load previous saved data from chrome storage
 window.addEventListener("load", async () => {
+  console.log("POPUP LOADED");
+
   //fetch prev saved data from chrome local storage
   const data = await chrome.storage.local.get([
     "goal",
@@ -78,6 +104,9 @@ window.addEventListener("load", async () => {
     "currentWebsite",
     "currentTitle",
     "aiDecision",
+    "focusTime",
+    "blocked",
+    "startTime",
   ]);
 
   // Restore correct button state
@@ -87,20 +116,53 @@ window.addEventListener("load", async () => {
   updateStatus(data.active);
 
   // Restore timer when popup opens
-  if (data.elapsedTime) {
-    const seconds = Math.floor(data.elapsedTime / 1000);
+  // Restore timer immediately
+  let elapsed = data.elapsedTime || 0;
 
-    const hrs = String(Math.floor(seconds / 3600)).padStart(2, "0");
-
-    const mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
-
-    const secs = String(seconds % 60).padStart(2, "0");
-
-    document.getElementById("timer").innerText = `${hrs}:${mins}:${secs}`;
+  if (data.active && data.startTime) {
+    elapsed += Date.now() - data.startTime;
   }
+
+  const seconds = Math.floor(elapsed / 1000);
+
+  const hrs = String(Math.floor(seconds / 3600)).padStart(2, "0");
+
+  const timerMins = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
+
+  const secs = String(seconds % 60).padStart(2, "0");
+
+  document.getElementById("timer").innerText = `${hrs}:${timerMins}:${secs}`;
 
   // Print all retrieved data
   console.log(data);
+  // Focus time
+  let focusMins = data.focusTime || 0;
+
+  // Show live focus time if session is running
+  if (data.active && data.startTime) {
+    focusMins = Math.floor(
+      ((data.elapsedTime || 0) + (Date.now() - data.startTime)) / 1000 / 60,
+    );
+  }
+  if (focusMins >= 60) {
+    document.getElementById("focus-time").innerText =
+      `${Math.floor(focusMins / 60)}h`;
+  } else {
+    document.getElementById("focus-time").innerText = `${focusMins}m`;
+  }
+
+  // Blocked websites
+  document.getElementById("blocked").innerText = data.blocked || 0;
+
+  // Focus score
+  const blocked = data.blocked || 0;
+
+  const score =
+    focusMins + blocked * 5 === 0
+      ? 100
+      : Math.round((focusMins / (focusMins + blocked * 5)) * 100);
+
+  document.getElementById("score").innerText = `${score}%`;
 
   //if a goal was previously saved, show it inside the textarea
 
@@ -128,9 +190,6 @@ window.addEventListener("load", async () => {
   if (data.aiDecision) {
     document.getElementById("decision").innerText = data.aiDecision;
   }
-
-  //print all retrieval in console for debugging
-  console.log(data);
 
   updateTimer();
 });
@@ -231,9 +290,14 @@ resetBtn.addEventListener("click", async () => {
     active: false,
     elapsedTime: 0,
     focusTime: 0,
+    blocked: 0,
+    startTime: null,
   });
 
   document.getElementById("timer").innerText = "00:00:00";
+  document.getElementById("focus-time").innerText = "0m";
+  document.getElementById("blocked").innerText = "0";
+  document.getElementById("score").innerText = "100%";
 });
 
 // ==================================

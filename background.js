@@ -1,9 +1,239 @@
 importScripts("gemini.js", "blocker.js", "rules.js");
 
+let lastTabId = -1;
+let lastTime = 0;
+
+// Gemini rate limiter
+let requestCount = 0;
+let windowStart = Date.now();
+
+function shouldIgnore(url) {
+  return (
+    !url ||
+    url.startsWith("chrome://") ||
+    url.startsWith("chrome-extension://") ||
+    url.startsWith("edge://") ||
+    url.startsWith("about:") ||
+    url.startsWith("devtools://")
+  );
+}
+
 //===============================
 // TAB DETECTION
 //===============================
 console.log("BACKGROUND LOADED");
+async function analyzeTab(tabId, tab) {
+  // Prevent duplicate analysis from
+  // onUpdated + onActivated firing together
+  if (lastTabId === tabId && Date.now() - lastTime < 1000) {
+    console.log("SKIPPING DUPLICATE");
+    return;
+  }
+
+  lastTabId = tabId;
+  lastTime = Date.now();
+  if (shouldIgnore(tab.url)) {
+    console.log("IGNORED:", tab.url);
+    return;
+  }
+
+  const data = await chrome.storage.local.get(["goal", "active"]);
+  if (!data.active) return;
+
+  console.log("TAB ANALYSIS");
+  console.log("Website:", tab.url);
+  console.log("TITLE FROM CHROME:");
+  console.log(tab.title);
+  console.log("URL:");
+  console.log(tab.url);
+
+  await chrome.storage.local.set({
+    currentWebsite: tab.url,
+    currentTitle: tab.title,
+    aiDecision: "⏳ Analyzing...",
+  });
+
+  // Get API key
+  const settings = await chrome.storage.local.get(["apiKey"]);
+
+  // Always allow/block
+  const rules = await chrome.storage.local.get(["alwaysAllow", "alwaysBlock"]);
+
+  const allow = rules.alwaysAllow || [];
+  const block = rules.alwaysBlock || [];
+
+  if (block.some((site) => tab.url.includes(site))) {
+    console.log("RULE: ALWAYS BLOCK");
+
+    await chrome.storage.local.set({
+      aiDecision: "DISTRACTION",
+    });
+
+    await blockPage(tabId, tab.url);
+    return;
+  }
+
+  if (allow.some((site) => tab.url.includes(site))) {
+    console.log("RULE: ALWAYS ALLOW");
+
+    await chrome.storage.local.set({
+      aiDecision: "RELEVANT",
+    });
+
+    return;
+  }
+
+  // User rules
+  const siteRules = await chrome.storage.local.get([
+    "blockedSites",
+    "allowedSites",
+  ]);
+
+  if (siteRules.blockedSites?.some((site) => tab.url.includes(site))) {
+    console.log("RULE: BLOCK");
+
+    await chrome.storage.local.set({
+      aiDecision: "DISTRACTION",
+    });
+
+    await blockPage(tabId, tab.url);
+    return;
+  }
+
+  if (siteRules.allowedSites?.some((site) => tab.url.includes(site))) {
+    console.log("RULE: ALLOW");
+
+    await chrome.storage.local.set({
+      aiDecision: "RELEVANT",
+    });
+
+    return;
+  }
+
+  const hostname = new URL(tab.url).hostname;
+
+  // Dynamic sites use full URL cache
+  let cacheKey = hostname;
+
+  if (hostname.includes("youtube.com") || hostname.includes("google.com")) {
+    cacheKey = tab.url;
+  }
+
+  // Allow search/home pages so users
+  // can find relevant content.
+  if (
+    hostname.includes("youtube.com") &&
+    (tab.url === "https://www.youtube.com/" || tab.url.includes("/results?"))
+  ) {
+    console.log("ALLOW: YOUTUBE SEARCH");
+
+    await chrome.storage.local.set({
+      aiDecision: "RELEVANT",
+    });
+
+    return;
+  }
+
+  if (
+    hostname.includes("google.com") &&
+    (tab.url === "https://www.google.com/" || tab.url.includes("/search?"))
+  ) {
+    console.log("ALLOW: GOOGLE SEARCH");
+
+    await chrome.storage.local.set({
+      aiDecision: "RELEVANT",
+    });
+
+    return;
+  }
+
+  let decision;
+
+  const cacheData = await chrome.storage.local.get(["decisionCache"]);
+
+  const decisionCache = cacheData.decisionCache || {};
+
+  // CACHE HIT
+  if (cacheKey in decisionCache) {
+    console.log("CACHE HIT:", cacheKey);
+
+    decision = decisionCache[cacheKey];
+  }
+
+  // CACHE MISS
+  else {
+    console.log("CACHE MISS:", cacheKey);
+
+    if (Date.now() - windowStart > 60000) {
+      requestCount = 0;
+      windowStart = Date.now();
+    }
+
+    if (requestCount >= 13) {
+      console.log("GEMINI RATE LIMIT REACHED");
+
+      await chrome.storage.local.set({
+        aiDecision: "⚠️ Gemini limit reached. Wait a minute.",
+      });
+
+      return;
+    }
+
+    requestCount++;
+
+    console.log("Gemini requests this minute:", requestCount);
+
+    decision = await askGemini(data.goal, tab.url, tab.title, settings.apiKey);
+
+    if (decision === "ERROR") {
+      await chrome.storage.local.set({
+        aiDecision: "⚠️ Gemini API Error",
+      });
+
+      console.log("GEMINI ERROR");
+
+      return;
+    }
+
+    // cache only valid Gemini decisions
+    // Cache only stable websites.
+    // Skip dynamic platforms like
+    // YouTube and Google.
+    if (decision === "RELEVANT" || decision === "DISTRACTION") {
+      decisionCache[cacheKey] = decision;
+
+      await chrome.storage.local.set({
+        decisionCache,
+      });
+    }
+  }
+
+  console.log("GEMINI:", decision);
+  if (
+    decision !== "RELEVANT" &&
+    decision !== "DISTRACTION" &&
+    decision !== "ERROR"
+  ) {
+    console.log("INVALID GEMINI RESPONSE:", decision);
+
+    await chrome.storage.local.set({
+      aiDecision: "⚠️ Invalid Gemini response",
+    });
+
+    return;
+  }
+  console.log("CACHE SIZE:", Object.keys(decisionCache).length);
+
+  await chrome.storage.local.set({
+    aiDecision: decision,
+  });
+
+  if (shouldBlock(decision)) {
+    await blockPage(tabId, tab.url);
+  } else {
+    console.log("ALLOW WEBSITE");
+  }
+}
 
 //tab switch detection
 chrome.tabs.onActivated.addListener((activeInfo) => {
@@ -17,97 +247,36 @@ chrome.tabs.onUpdated.addListener(
   // changeInfo -> tells us what changed
   // tab        -> contains information about the tab
   async (tabId, changeInfo, tab) => {
+    if (shouldIgnore(tab.url)) {
+      console.log("IGNORED:", tab.url);
+      return;
+    }
+
     // A webpage loads in multiple stages.
     // We only want to run our code after
     // the page has completely loaded.
     if (changeInfo.status !== "complete") return;
 
+    // Wait for YouTube to update its title
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    tab = await chrome.tabs.get(tabId);
+
     // Fetch data stored in Chrome local storage.
     // We need:
     // goal   -> user's current study goal
     // active -> whether focus mode is ON
-    const data = await chrome.storage.local.get(["goal", "active"]);
-
-    // If focus mode is OFF,
-    // there is nothing to monitor.
-    if (!data.active) return;
 
     // Print the user's goal.
     // Example:
     // "Study Binary Search"
-    console.log("Goal:", data.goal);
-
-    // Print the current website URL.
-    // Example:
-    // https://youtube.com/watch?v=abc
-    console.log("Website:", tab.url);
-
-    // Print the title of the current page.
-    // Example:
-    // "Binary Search Tutorial - Striver"
-    console.log("Title:", tab.title);
-
-    // Save current page information
-    // so popup.html can display it
-
-    await chrome.storage.local.set({
-      // Current website URL
-      currentWebsite: tab.url,
-
-      // Current page title
-      currentTitle: tab.title,
-    });
+    await analyzeTab(tabId, tab);
   },
 );
 
 // Fires when user switches tabs
 chrome.tabs.onActivated.addListener(async (activeInfo) => {
-  // Get the active tab
   const tab = await chrome.tabs.get(activeInfo.tabId);
 
-  // Get current session
-  const data = await chrome.storage.local.get(["goal", "active"]);
-
-  // Ignore if focus mode is off
-  if (!data.active) return;
-
-  console.log("TAB SWITCHED");
-
-  console.log("Website:", tab.url);
-
-  console.log("Title:", tab.title);
-
-  // Get the user's saved Gemini API key
-  const settings = await chrome.storage.local.get(["apiKey"]);
-
-  // Ask Gemini if this page
-  // is related to the user's goal
-  const decision = await askGemini(
-    data.goal,
-    tab.url,
-    tab.title,
-    settings.apiKey,
-  );
-
-  // Print Gemini's answer
-  console.log("GEMINI:", decision);
-
-  // Decide whether the website
-  // should be blocked or allowed
-  if (shouldBlock(decision)) {
-    await blockPage(activeInfo.tabId, tab.url);
-  } else {
-    console.log("ALLOW WEBSITE");
-  }
-
-  // Save Gemini's decision so popup.js can display it
-  await chrome.storage.local.set({
-    aiDecision: decision,
-  });
-
-  // Update popup data
-  await chrome.storage.local.set({
-    currentWebsite: tab.url,
-    currentTitle: tab.title,
-  });
+  await analyzeTab(activeInfo.tabId, tab);
 });
