@@ -9,26 +9,31 @@ Using Google's Gemini API, GoalPilot analyzes visited websites in real-time and 
 ## ✨ Features
 
 ### 🎯 Goal-Based Focus Sessions
+
 - Create custom study or work goals.
 - Set focus session duration.
 - Start, pause, and reset focus sessions.
 
 ### 🤖 AI-Powered Website Analysis
+
 - Uses Google's Gemini API to determine whether a website helps achieve the user's goal.
 - Analyzes website URLs and page titles in real-time.
 - Supports any type of goal (programming, exams, fitness, work, learning, etc.).
 
 ### 🚫 Smart Distraction Blocking
+
 - Automatically blocks distracting websites.
 - Displays a custom distraction page explaining why the content was blocked.
 - Provides one-click return to productive work.
 
 ### ⚡ Decision Caching
+
 - Caches previous AI decisions.
 - Reduces API calls.
 - Improves extension performance.
 
 ### 📊 Productivity Analytics
+
 - Tracks:
   - Focus time
   - Number of blocked distractions
@@ -36,16 +41,19 @@ Using Google's Gemini API, GoalPilot analyzes visited websites in real-time and 
 - Displays live productivity statistics.
 
 ### 🔒 Custom Rules
+
 - Configure:
   - Always Allow websites
   - Always Block websites
 - Override AI decisions when needed.
 
 ### 🔐 API Key Validation
+
 - Verifies Gemini API keys before saving.
 - Prevents invalid API configurations.
 
 ### 👋 Welcome Experience
+
 - Dedicated onboarding page.
 - Explains how GoalPilot works.
 - Guides users through setup.
@@ -174,23 +182,29 @@ Select the project folder.
 # 🚀 Getting Started
 
 ### Step 1
+
 Get a Gemini API key from:
 
 https://aistudio.google.com/apikey
 
 ### Step 2
+
 Open GoalPilot Settings.
 
 ### Step 3
+
 Add your Gemini API key.
 
 ### Step 4
+
 Configure allowed and blocked websites.
 
 ### Step 5
+
 Start a focus session.
 
 ### Step 6
+
 GoalPilot will automatically analyze websites and block distractions.
 
 ---

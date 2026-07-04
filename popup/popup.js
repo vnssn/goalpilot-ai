@@ -192,7 +192,17 @@ window.addEventListener("load", async () => {
 
   // Show Gemini's latest decision
   if (data.aiDecision) {
-    document.getElementById("decision").innerText = data.aiDecision;
+    const decision = document.getElementById("decision");
+
+    decision.innerText = data.aiDecision;
+
+    decision.classList.remove("relevant", "distraction");
+
+    if (data.aiDecision.includes("DISTRACTION")) {
+      decision.classList.add("distraction");
+    } else if (data.aiDecision.includes("RELEVANT")) {
+      decision.classList.add("relevant");
+    }
   }
   // Show allowed rules
   const allowed = document.getElementById("allowed-list");
@@ -373,10 +383,13 @@ chrome.storage.onChanged.addListener((changes, area) => {
 
     decision.innerText = changes.aiDecision.newValue;
 
+    // remove old color classes
+    decision.classList.remove("relevant", "distraction");
+
     if (changes.aiDecision.newValue.includes("DISTRACTION")) {
-      decision.style.color = "#ef4444";
-    } else {
-      decision.style.color = "#22c55e";
+      decision.classList.add("distraction");
+    } else if (changes.aiDecision.newValue.includes("RELEVANT")) {
+      decision.classList.add("relevant");
     }
   }
 });

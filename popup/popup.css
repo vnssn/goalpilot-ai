@@ -70,6 +70,16 @@ label {
   font-weight: 700;
 }
 
+.relevant {
+  color: #22c55e !important;
+  font-weight: 700;
+}
+
+.distraction {
+  color: #ef4444 !important;
+  font-weight: 700;
+}
+
 input,
 textarea,
 select,
