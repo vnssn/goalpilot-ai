@@ -58,7 +58,7 @@ function updateTimer() {
     // convert to seconds
     const seconds = Math.floor(elapsed / 1000);
     // Session duration in seconds
-    const limit = parseInt(data.duration || 0) * 60;
+    const limit = parseInt(data.duration || 0) * 60 * 60;
 
     // Stop session when timer ends
     if (limit > 0 && seconds >= limit) {
@@ -107,6 +107,8 @@ window.addEventListener("load", async () => {
     "focusTime",
     "blocked",
     "startTime",
+    "allowedSites",
+    "blockedSites",
   ]);
 
   // Restore correct button state
@@ -135,6 +137,8 @@ window.addEventListener("load", async () => {
 
   // Print all retrieved data
   console.log(data);
+  console.log("ALLOW:", data.allowedSites);
+  console.log("BLOCK:", data.blockedSites);
   // Focus time
   let focusMins = data.focusTime || 0;
 
@@ -190,6 +194,27 @@ window.addEventListener("load", async () => {
   if (data.aiDecision) {
     document.getElementById("decision").innerText = data.aiDecision;
   }
+  // Show allowed rules
+  const allowed = document.getElementById("allowed-list");
+  allowed.innerHTML = "";
+
+  (data.allowedSites || []).forEach((site) => {
+    allowed.innerHTML += `<li>${site}</li>`;
+  });
+
+  if ((data.allowedSites || []).length === 0)
+    allowed.innerHTML = "<li>None</li>";
+
+  // Show blocked rules
+  const blockedList = document.getElementById("blocked-list");
+  blockedList.innerHTML = "";
+
+  (data.blockedSites || []).forEach((site) => {
+    blockedList.innerHTML += `<li>${site}</li>`;
+  });
+
+  if ((data.blockedSites || []).length === 0)
+    blockedList.innerHTML = "<li>None</li>";
 
   updateTimer();
 });
@@ -199,6 +224,18 @@ window.addEventListener("load", async () => {
 //=============================
 
 startBtn.addEventListener("click", async () => {
+  // Check if Gemini API key exists
+  const settings = await chrome.storage.local.get(["apiKey"]);
+
+  if (!settings.apiKey || settings.apiKey.trim() === "") {
+    alert(
+      "Please add a valid Gemini API key in GoalPilot Settings before starting a session.",
+    );
+
+    chrome.runtime.openOptionsPage();
+    return;
+  }
+
   // Read values entered by the user
   const goal = goalInput.value;
   // Show current goal

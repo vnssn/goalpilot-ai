@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "GoalPilot",
-  "version": "1.0",
+  "version": "1.0.0",
   "description": "AI-powered browser extension that blocks content unrelated to your current study or work goal.",
   "permissions": [
     "tabs",
@@ -42,7 +42,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["blocked.html"],
+      "resources": ["blocked/blocked.html"],
       "matches": ["<all_urls>"]
     }
   ],

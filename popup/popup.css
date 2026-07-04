@@ -181,6 +181,39 @@ a:hover {
   border-bottom: 0;
 }
 
+.rules-container {
+  display: flex;
+  margin-top: 10px;
+}
+
+.rules-column {
+  flex: 1;
+}
+
+.rules-divider {
+  width: 1px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 0 15px;
+}
+
+.allow {
+  color: #22c55e;
+  font-weight: bold;
+}
+
+.block {
+  color: #ef4444;
+  font-weight: bold;
+}
+
+.rules-column ul {
+  margin-top: 8px;
+  padding-left: 18px;
+}
+
+.rules-column li {
+  margin-bottom: 5px;
+}
 .decision {
   color: #22c55e;
   font-weight: 800;

@@ -28,9 +28,9 @@
 
       <label for="duration">Session duration</label>
       <select id="duration">
-        <option>25 minutes</option>
-        <option>1 hour</option>
-        <option>2 hours</option>
+        <option value="25">25 minutes</option>
+        <option value="60">1 hour</option>
+        <option value="120">2 hours</option>
       </select>
 
       <div class="buttons">
@@ -80,20 +80,24 @@
 
     <section class="card">
       <h2>5. Simple Rules</h2>
-      <small>Always Block</small>
-      <ul>
-        <li>Instagram Reels</li>
-        <li>YouTube Shorts</li>
-        <li>TikTok</li>
-      </ul>
-      <br />
-      <small>Always Allow</small>
-      <ul>
-        <li>Documentation</li>
-        <li>LeetCode</li>
-        <li>GeeksforGeeks</li>
-      </ul>
-      <p class="muted">Use Gemini for everything else.</p>
+
+      <div class="rules-container">
+        <div class="rules-column">
+          <small class="allow">ALLOWED</small>
+          <ul id="allowed-list">
+            <li>None</li>
+          </ul>
+        </div>
+
+        <div class="rules-divider"></div>
+
+        <div class="rules-column">
+          <small class="block">BLOCKED</small>
+          <ul id="blocked-list">
+            <li>None</li>
+          </ul>
+        </div>
+      </div>
     </section>
     <script src="popup.js"></script>
   </body>

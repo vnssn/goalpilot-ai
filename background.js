@@ -1,5 +1,7 @@
 importScripts("gemini.js", "blocker.js", "rules.js");
 
+console.log("BACKGROUND LOADED");
+
 let lastTabId = -1;
 let lastTime = 0;
 
@@ -78,6 +80,7 @@ async function analyzeTab(tabId, tab) {
 
     await chrome.storage.local.set({
       aiDecision: "RELEVANT",
+      lastRelevantPage: tab.url,
     });
 
     return;
@@ -105,6 +108,7 @@ async function analyzeTab(tabId, tab) {
 
     await chrome.storage.local.set({
       aiDecision: "RELEVANT",
+      lastRelevantPage: tab.url,
     });
 
     return;
@@ -129,6 +133,7 @@ async function analyzeTab(tabId, tab) {
 
     await chrome.storage.local.set({
       aiDecision: "RELEVANT",
+      lastRelevantPage: tab.url,
     });
 
     return;
@@ -142,6 +147,7 @@ async function analyzeTab(tabId, tab) {
 
     await chrome.storage.local.set({
       aiDecision: "RELEVANT",
+      lastRelevantPage: tab.url,
     });
 
     return;
@@ -231,6 +237,10 @@ async function analyzeTab(tabId, tab) {
   if (shouldBlock(decision)) {
     await blockPage(tabId, tab.url);
   } else {
+    await chrome.storage.local.set({
+      lastRelevantPage: tab.url,
+    });
+
     console.log("ALLOW WEBSITE");
   }
 }
@@ -279,4 +289,16 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
   const tab = await chrome.tabs.get(activeInfo.tabId);
 
   await analyzeTab(activeInfo.tabId, tab);
+});
+
+chrome.runtime.onInstalled.addListener(async (details) => {
+  if (details.reason === "install") {
+    await chrome.storage.local.set({
+      firstRun: true,
+    });
+
+    chrome.tabs.create({
+      url: chrome.runtime.getURL("welcome/welcome.html"),
+    });
+  }
 });

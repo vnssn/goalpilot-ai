@@ -10,18 +10,29 @@ function shouldBlock(decision) {
 
 // Blocks a distracting website
 async function blockPage(tabId, website) {
-  // Increment blocked count
-  const stats = await chrome.storage.local.get(["blocked"]);
+  try {
+    // Get current stats and goal
+    const data = await chrome.storage.local.get(["blocked", "goal"]);
 
-  await chrome.storage.local.set({
-    blocked: (stats.blocked || 0) + 1,
-  });
-  console.log("BLOCKING WEBSITE:", website);
+    // Save information for blocked.html
+    await chrome.storage.local.set({
+      blocked: (data.blocked || 0) + 1,
 
-  // Redirect the current tab
-  // to GoalPilot's custom
-  // blocked page
-  await chrome.tabs.update(tabId, {
-    url: chrome.runtime.getURL("blocked.html"),
-  });
+      blockedGoal: data.goal || "No active goal",
+
+      blockedWebsite: new URL(website).hostname.replace("www.", ""),
+
+      blockedDecision: "DISTRACTION",
+    });
+
+    console.log("BLOCKING WEBSITE:", website);
+    console.log("GOAL:", data.goal);
+
+    // Redirect to blocked page
+    await chrome.tabs.update(tabId, {
+      url: chrome.runtime.getURL("blocked/blocked.html"),
+    });
+  } catch (err) {
+    console.error("BLOCK ERROR:", err);
+  }
 }

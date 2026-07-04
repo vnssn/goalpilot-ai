@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Blocked by GoalPilot</title>
+
+    <link rel="stylesheet" href="blocked.css" />
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="icon">GoalPilot</div>
+
+      <h1>Website Blocked</h1>
+
+      <p class="subtitle">
+        GoalPilot determined this page is unrelated to your current goal.
+      </p>
+
+      <div class="info">
+        <div class="info-row">
+          <span class="label">CURRENT GOAL</span>
+          <span id="goal">Loading...</span>
+        </div>
+
+        <div class="info-row">
+          <span class="label">BLOCKED WEBSITE</span>
+          <span id="website">Loading...</span>
+        </div>
+
+        <div class="info-row">
+          <span class="label">AI DECISION</span>
+          <span id="decision" class="danger"> DISTRACTION </span>
+        </div>
+      </div>
+
+      <div class="motivation">
+        Stay focused. You've blocked
+        <span id="blocked-count">0</span>
+        distractions this session.
+      </div>
+
+      <div class="buttons">
+        <button id="backBtn">Go Back</button>
+
+        <button id="settingsBtn" class="secondary">Open GoalPilot</button>
+      </div>
+    </div>
+    <script src="blocked.js"></script>
+  </body>
+</html>

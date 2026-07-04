@@ -42,11 +42,49 @@ window.onload = async () => {
 
   // Save API key
   document.getElementById("saveApi").addEventListener("click", async () => {
-    await chrome.storage.local.set({
-      apiKey: document.getElementById("apiKey").value,
-    });
+    const apiKey = document.getElementById("apiKey").value.trim();
 
-    alert("API Key Saved");
+    if (apiKey.includes("********")) {
+      alert("API Key Already Saved");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: "Reply with OK",
+                  },
+                ],
+              },
+            ],
+          }),
+        },
+      );
+
+      if (!response.ok) {
+        alert("Invalid Gemini API Key");
+        return;
+      }
+
+      await chrome.storage.local.set({
+        apiKey: apiKey,
+      });
+
+      alert("API Key Saved Successfully");
+    } catch (err) {
+      console.error(err);
+      alert("Could not verify API key");
+    }
   });
 
   const data = await chrome.storage.local.get([
@@ -55,7 +93,13 @@ window.onload = async () => {
     "blockedSites",
   ]);
 
-  if (data.apiKey) document.getElementById("apiKey").value = data.apiKey;
+  if (data.apiKey) {
+    const key = data.apiKey;
+
+    // show first 8 and last 4 chars only
+    document.getElementById("apiKey").value =
+      key.substring(0, 8) + "****************" + key.substring(key.length - 4);
+  }
 
   if (data.allowedSites)
     document.getElementById("allowed").value = data.allowedSites.join("\n");

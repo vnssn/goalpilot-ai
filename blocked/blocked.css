@@ -1,0 +1,142 @@
+body {
+  background: radial-gradient(circle at top, #1e1b4b 0%, #0f172a 35%), #0f172a;
+  color: white;
+  font-family: Arial;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.card {
+  background: rgba(17, 28, 51, 0.85);
+  backdrop-filter: blur(12px);
+  padding: 50px;
+  border-radius: 24px;
+  width: 550px;
+  text-align: center;
+
+  border-top: 3px solid #ef4444;
+
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.4),
+    0 0 50px rgba(139, 92, 246, 0.1);
+}
+
+h1 {
+  color: #ef4444;
+  font-size: 54px;
+  font-weight: 800;
+  margin: 15px 0;
+
+  text-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+}
+
+.icon {
+  font-size: 64px;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 10px;
+  letter-spacing: -3px;
+}
+
+p {
+  color: #cbd5e1;
+}
+
+button {
+  padding: 14px 28px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+
+  min-width: 150px;
+}
+
+button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(139, 92, 246, 0.35);
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 35px;
+}
+
+/* INFO CARD */
+
+.info {
+  background: #0f172a;
+  border-radius: 20px;
+  padding: 20px;
+  margin: 40px 0;
+  border-top: 2px solid rgba(239, 68, 68, 0.4);
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 10px;
+  border-bottom: 1px solid #1e293b;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.label {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.danger {
+  color: #ef4444;
+  font-weight: 700;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 8px 14px;
+  border-radius: 10px;
+}
+
+/* MOTIVATION */
+
+.motivation {
+  color: #cbd5e1;
+  margin-bottom: 30px;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+/* PRIMARY BUTTON */
+
+#back {
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+}
+
+/* GOALPILOT BUTTON */
+
+.secondary {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #334155;
+  color: #e2e8f0;
+  backdrop-filter: blur(8px);
+}
+
+.secondary:hover {
+  transform: translateY(-3px);
+  border-color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.08);
+  box-shadow: 0 0 25px rgba(139, 92, 246, 0.25);
+}
