@@ -253,6 +253,11 @@ startBtn.addEventListener("click", async () => {
   const duration = durationInput.value;
   const prev = await chrome.storage.local.get(["elapsedTime"]);
 
+  //reset ai cache for new session
+  await chrome.storage.local.set({
+    decisionCache: {},
+  });
+
   // Save everything into Chrome's local storage
   await chrome.storage.local.set({
     // User's study/work goal
@@ -339,6 +344,7 @@ resetBtn.addEventListener("click", async () => {
     focusTime: 0,
     blocked: 0,
     startTime: null,
+    decisionCache: {},
   });
 
   document.getElementById("timer").innerText = "00:00:00";
