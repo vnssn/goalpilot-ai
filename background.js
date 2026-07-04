@@ -268,7 +268,7 @@ chrome.tabs.onUpdated.addListener(
     if (changeInfo.status !== "complete") return;
 
     // Wait for YouTube to update its title
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     tab = await chrome.tabs.get(tabId);
 

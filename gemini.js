@@ -23,8 +23,8 @@ ${title}
 
 Rules:
 1. Return RELEVANT if the page directly helps achieve the goal or is reasonably related to achieving the goal.
-2. Educational, research, tutorial, documentation, learning, planning, and productivity content should generally be considered RELEVANT.
-3. Movies, TV shows, anime, music, entertainment, memes, celebrity content, gaming, sports, social media, and random leisure content are ALWAYS DISTRACTION.
+2. Educational, research, tutorial, documentation, learning, planning, and productivity content should generally be considered RELEVANT unless it is clearly unrelated to the goal.
+3. Movies, TV shows, anime, music, entertainment, memes, celebrity content, gaming, sports, social media, and random leisure content are ALWAYS DISTRACTION unless they are directly related to the goal.
 4. Login pages, search pages, homepages, dashboards, and navigation pages should be considered RELEVANT.
 5. If a page could reasonably help the user progress toward their goal, return RELEVANT.
 6. When uncertain, prefer RELEVANT rather than blocking potentially useful content.
