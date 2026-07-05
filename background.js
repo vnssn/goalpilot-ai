@@ -139,11 +139,13 @@ async function analyzeTab(tabId, tab) {
     return;
   }
 
+  // Allow only Google homepage.
+  // Google searches should be analyzed by Gemini.
   if (
     hostname.includes("google.com") &&
-    (tab.url === "https://www.google.com/" || tab.url.includes("/search?"))
+    tab.url === "https://www.google.com/"
   ) {
-    console.log("ALLOW: GOOGLE SEARCH");
+    console.log("ALLOW: GOOGLE HOME");
 
     await chrome.storage.local.set({
       aiDecision: "RELEVANT",

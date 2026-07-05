@@ -10,44 +10,21 @@ async function askGemini(goal, website, title, apiKey) {
   try {
     // Build prompt for Gemini
     const prompt = `
-You are a strict productivity website classifier.
+User goal: ${goal}
 
-Goal:
-${goal}
+Website: ${website}
 
-Website:
-${website}
+Title: ${title}
 
-Page title:
-${title}
+Classify the page as:
+- RELEVANT: directly helps achieve the user's goal.
+- DISTRACTION: unrelated entertainment, social media, celebrity, gaming, shopping, movies, TV, memes, or leisure content unless the user goal is related to those topics.
 
-Rules:
-1. Return RELEVANT if the page directly helps achieve the goal or is reasonably related to achieving the goal.
-2. Educational, research, tutorial, documentation, learning, planning, and productivity content should generally be considered RELEVANT unless it is clearly unrelated to the goal.
-3. Movies, TV shows, anime, music, entertainment, memes, celebrity content, gaming, sports, social media, and random leisure content are ALWAYS DISTRACTION unless they are directly related to the goal.
-4. Login pages, search pages, homepages, dashboards, and navigation pages should be considered RELEVANT.
-5. If a page could reasonably help the user progress toward their goal, return RELEVANT.
-6. When uncertain, prefer RELEVANT rather than blocking potentially useful content.
+Educational, documentation, coding, research, planning, and productivity content are usually RELEVANT unless the user goal is unrelated to those topics.
 
-Examples:
+Search pages and homepages are RELEVANT only if their content matches the goal.
 
-Goal: Learn guitar
-Page: Beginner Finger Exercises for Guitar
-Answer: RELEVANT
-
-Goal: Study Dynamic Programming
-Page: Binary Search Tutorial
-Answer: RELEVANT
-
-Goal: Lose weight
-Page: Healthy Meal Planning Guide
-Answer: RELEVANT
-
-Goal: Study Physics
-Page: STUART LITTLE Full Movie
-Answer: DISTRACTION
-
-Reply with EXACTLY one word:
+Reply with exactly one word:
 RELEVANT
 or
 DISTRACTION
